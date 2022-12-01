@@ -1,4 +1,6 @@
-elf_calories = Hash.new { |k, v| k[v] = [] }
+# this array has one entry per elf
+# each elf's entry has an array of calorie amounts
+elf_calories = []
 elf = 0
 
 STDIN.each_line do |line_with_newline|
@@ -7,18 +9,13 @@ STDIN.each_line do |line_with_newline|
   if line.empty?
     elf += 1
   else
-    calories = line.to_i
-    elf_calories[elf] << calories
+    elf_calories[elf] ||= []
+    elf_calories[elf] << line.to_i
   end
 end
 
-elf_calories_sum = elf_calories.map do |elf, cal_list|
-  [elf, cal_list.sum]
-end
+elf_calories_sum = elf_calories.map(&:sum)
 
-calories_sum = elf_calories_sum.map(&:last)
+puts "1. Most calories: #{elf_calories_sum.max}"
 
-
-puts "1. Most calories: #{calories_sum.max}"
-
-puts "2. Sum of top 3 most calories: #{calories_sum.sort_by { |cals| -cals }.take(3).sum}"
+puts "2. Sum of top 3 most calories: #{elf_calories_sum.sort_by { |cals| -cals }.take(3).sum}"
