@@ -1,0 +1,2 @@
+1. Most calories: 69795
+2. Sum of top 3 most calories: 208437

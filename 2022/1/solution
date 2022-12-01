@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ruby ./calorie-count.rb < input.txt | tee solution_1.txt
