@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ruby ./depth-change.rb < input.txt | fgrep -c increase | tee solution_1.txt
