@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ruby ./day6.rb < input.txt | tee solution.txt
