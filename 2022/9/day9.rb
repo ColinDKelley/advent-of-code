@@ -2,16 +2,11 @@ require 'set'
 
 TAIL_KNOTS = 9
 
-lines = STDIN.each_line.map(&:chomp)
+@x = 10
+@y = 10
 
-@x = 5
-@y = 5
-
-@tx = 5
-@ty = 5
-
-tail_positions = Set.new
-tail_positions << [@tx, @ty]
+@tx = [@x] * TAIL_KNOTS
+@ty = [@y] * TAIL_KNOTS
 
 def move(dir)
   case dir
@@ -28,54 +23,53 @@ def move(dir)
   end
 end
 
-def deltas(head, tail)
+# returns [magnitude, sign]
+def delta(head, tail)
   sign = tail > head ? 1 : -1
   [(tail - head)*sign, sign]
 end
 
-def move_tail
-  if @y == @ty # same row
-    puts "SAME ROW"
-    if (@x - @tx) > 1 # ahead of tail by 2+
-      @tx += 1
-    elsif (@x - @tx) < -1
-      @tx -= 1
+def move_tail(x, y, ti)
+  if y == @ty[ti] # same row
+    if (x - @tx[ti]) > 1 # ahead of tail by 2+
+      @tx[ti] += 1
+    elsif (x - @tx[ti]) < -1
+      @tx[ti] -= 1
     end
-  elsif @x == @tx # same col
-    puts "SAME COL"
-    if (@y - @ty) > 1
-      @ty += 1
-    elsif (@y - @ty) < -1
-      @ty -= 1
+  elsif x == @tx[ti] # same col
+    if (y - @ty[ti]) > 1
+      @ty[ti] += 1
+    elsif (y - @ty[ti]) < -1
+      @ty[ti] -= 1
     end
   else
-    xdelta, xsign = deltas(@x, @tx)
-    ydelta, ysign = deltas(@y, @ty)
-    if xdelta == 2 && ydelta == 1
-      puts "DIAG x2"
-      @tx -= xsign
-      @ty -= ysign
-    elsif xdelta == 1 && ydelta == 2
-      puts "DIAG Y2"
-      @tx -= xsign
-      @ty -= ysign
+    xdelta, xsign = delta(x, @tx[ti])
+    ydelta, ysign = delta(y, @ty[ti])
+    if (xdelta == 2 && ydelta >= 1) || (xdelta >= 1 && ydelta == 2)
+      @tx[ti] -= xsign
+      @ty[ti] -= ysign
+    elsif xdelta > 2 || ydelta > 2
+      raise "Uh oh! xdelta #{xdelta}; ydelta #{ydelta} ???"
     end
   end
 end
 
-lines.each do |line|
+tail_positions = Set.new
+tail_positions.add([@tx.last, @ty.last])
+
+STDIN.each_line do |line|
   dir, amount = line.split
 
-  amount = amount.to_i
-
-  amount.times do
+  amount.to_i.times do
     move(dir)
-    move_tail
-    tail_positions << [@tx, @ty]
-    puts "Head: [#{@x}, #{@y}]  Tail: [#{@tx}, #{@ty}]"
+    x, y = @x, @y
+    TAIL_KNOTS.times do
+      move_tail(x, y, _1)
+      x, y = @tx[_1], @ty[_1]
+    end
+    tail_positions.add([@tx.last, @ty.last])
+    puts "Head: [#{@x}, #{@y}]  Tails: #{TAIL_KNOTS.times.map { |i| "[#{@tx[i]}, #{@ty[i]}] " }}"
   end
 end
-
-puts tail_positions.inspect
 
 puts tail_positions.size
