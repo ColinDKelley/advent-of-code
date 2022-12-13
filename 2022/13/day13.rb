@@ -1,8 +1,5 @@
-
-pairs =
-  STDIN.read.split("\n\n")
-     .map { |pair| pair.split("\n").map { eval(_1) } }
-
+# returns 0 if equal
+# returns 1 if left sorts after right
 # returns -1 if right sorts after left
 def compare(left, right)
   case [left, right]
@@ -18,14 +15,21 @@ def compare(left, right)
     -1
   in [Object, nil]
     1
-  end.tap do |result|
-    puts "compare #{left.inspect} <=> #{right.inspect} => #{result.inspect}"
-  end
+  end.tap { |result| puts "compare #{left.inspect} <=> #{right.inspect} => #{result.inspect}" }
 end
 
-puts pairs.inspect
+packets =
+  STDIN
+    .read
+    .split("\n")
+    .map { eval(_1) unless _1.empty? }
+    .compact
 
-matches =
-  pairs.map.with_index { |(left, right), i| puts "Pair #{i + 1}"; compare(left, right) < 0 ? i + 1 : nil }
+DIVIDERS = [[[2]], [[6]]]
 
-puts matches.inspect, matches.compact.sum
+puts([*packets, *DIVIDERS]
+    .sort { compare(_1, _2) }
+    .map.with_index { _2 + 1 if DIVIDERS.include?(_1) }
+    .compact
+    .reduce(&:*)
+)
